@@ -13,9 +13,9 @@ OAM_CLEAR:
 VARS_INIT: 
   xor a
   ld [frameCounter], a
-  ld a, 100
+  ld a, $16 ;player Y
   ld [pY], a
-  ld a, 16
+  ld a, $e ;player X
   ld [pX], a
   ld a, 15
   ld [pSpeed], a

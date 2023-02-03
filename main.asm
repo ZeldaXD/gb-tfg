@@ -3,6 +3,7 @@
 ;****************************************************************************************************************************************************
 ;* Developed by Miguel Molina
 ;* for the University of Seville end-of-degree project
+;* v0.0.1
 ;****************************************************************************************************************************************************
 
 ;****************************************************************************************************************************************************
@@ -12,17 +13,17 @@
 	;System includes
 	INCLUDE	"system/hwgb.inc"
 
-    ;Tile includes
-    INCLUDE "gfx/tiles.inc"
-    INCLUDE "gfx/player.inc"
+  ;Tile includes
+  INCLUDE "gfx/tiles.inc"
+  INCLUDE "gfx/player.inc"
 
 	;Project includes
-    INCLUDE	"utils.asm"
-    INCLUDE	"text.asm"
-    INCLUDE	"functions.asm"
-    INCLUDE	"input.asm"
-    INCLUDE	"vars.asm"
-    INCLUDE "player.asm"
+  INCLUDE	"utils.asm"
+  INCLUDE	"text.asm"
+  INCLUDE	"functions.asm"
+  INCLUDE	"input.asm"
+  INCLUDE	"vars.asm"
+  INCLUDE "player.asm"
 
 ;****************************************************************************************************************************************************
 ;*	Header
@@ -80,17 +81,15 @@ INIT:
     call MAP_CLEAR
     call OAM_CLEAR
 
-    ld hl, _SCRN0
-    ld de, level1_map_data
-    ld bc, level1_tile_map_size
-    call MEMCPY
-
     ld hl, $9000
     ld de, level1_tile_data
     ld bc, level1_tile_data_size
     call MEMCPY
 
-    
+    ld hl, _SCRN0
+    ld de, level1_map_data
+    ld bc, level1_tile_map_size
+    call MEMCPY
 
     ld hl, $8000
     ld de, player_tile_data
