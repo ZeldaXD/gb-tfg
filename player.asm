@@ -29,9 +29,17 @@ PLAYER_UPDATE:
     ld a, [pY]
     ld [shadowOAM], a ;Y
     ld [shadowOAM + 4], a ;Y
+
+    call POSITION_GET ;Calculate Y pos in map
+    ld a, b
+    ld [map_pY], a
+
     ld a, [pX]
     ld [shadowOAM + 1], a ;X
     add a, 8
     ld [shadowOAM + 4 + 1], a
-    ret
 
+    call POSITION_GET ;Calculate X pos in map
+    ld a, b
+    ld [map_pX], a
+    ret

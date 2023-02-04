@@ -44,56 +44,97 @@ INPUT_CHECK:
     ld a, [rPAD]
 
     cp PADF_UP
-    jr z, .UP_BUTTON
+    jr z, .up_buton
     cp PADF_DOWN
-    jr z, .DOWN_BUTTON
+    jr z, .down_button
     cp PADF_LEFT
-    jr z, .LEFT_BUTTON
+    jr z, .left_button
     cp PADF_RIGHT
-    jr z, .RIGHT_BUTTON
+    jr z, .right_button
 
     cp PADF_START
-    jr z, .START_BUTTON
+    jr z, .start_button
     cp PADF_SELECT
-    jr z, .SELECT_BUTTON
+    jr z, .select_button
     cp PADF_A
-    jr z, .A_BUTTON
+    jr z, .a_button
     cp PADF_B
-    jr z, .B_BUTTON
+    jr z, .b_button
     ret
 
-.UP_BUTTON
+.up_buton
+    ; ld a, [pY]
+    ; sub a, 1
+    ; call POS_TO_MAP ;Calculate new Y (minus 10 due to sprite size) pos in map [map_pY] 
+    ; ld a, [map_pX]
+    ; ld e, a
+    ; ld a, b
+    ; ld d, a ;map_pY 
+    ; call CHECK_COLLISION ;Check the collision in next position
+    ; ret nz ;Return if the next tile is not empty
+
     ld a, [pY]
     dec a
     ld [pY], a
     ret
 
-.DOWN_BUTTON
+.down_button
+    ; ld a, [pY]
+    ; inc a
+    ; inc a
+    ; call POS_TO_MAP ;Calculate new Y (plus 1 due to sprite size) pos in map [map_pY] 
+    ; ld a, [map_pX]
+    ; ld e, a
+    ; ld a, b
+    ; ld d, a ;map_pY 
+    ;call CHECK_COLLISION ;Check the collision in next position
+    ;ret nz ;Return if the next tile is not empty
+
     ld a, [pY]
     inc a
     ld [pY], a
     ret
 
-.LEFT_BUTTON
+.left_button
+    ; ld a, [pX]
+    ; sub a, 1
+    ; call POS_TO_MAP ;Calculate new X (minus 2 due to sprite size) pos in map [map_pX] 
+    ; ld a, [map_pY]
+    ; ld d, a
+    ; ld a, b
+    ; ld e, a ;map_pX 
+    ; ;call CHECK_COLLISION ;Check the collision in next position
+    ; ;ret nz ;Return if the next tile is not empty
+
     ld a, [pX]
     dec a
     ld [pX], a
     ret
 
-.RIGHT_BUTTON
+.right_button
+    ; ld a, [pX]
+    ; add a, 10
+    ; call POS_TO_MAP ;Calculate new X pos (plus 9 due to sprite size) in map [map_pX] 
+    ; ld a, [map_pY]
+    ; ld d, a
+    ; ld a, b
+    ; ld e, a ;map_pX 
+    ; ;call CHECK_COLLISION ;Check the collision in next position
+    ; ;ret nz ;Return if the next tile is not empty
+
     ld a, [pX]
     inc a
     ld [pX], a
     ret
 
-.START_BUTTON
+.start_button
     ret
 
-.SELECT_BUTTON
+.select_button
     ret
 
-.A_BUTTON
+.a_button
     ret
 
-.B_BUTTON
+.b_button
     ret

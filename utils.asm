@@ -13,10 +13,23 @@ OAM_CLEAR:
 VARS_INIT: 
   xor a
   ld [frameCounter], a
-  ld a, $16 ;player Y
+  ld a, $14 ;player Y
   ld [pY], a
-  ld a, $e ;player X
+  ld a, $0f ;player X
   ld [pX], a
   ld a, 15
   ld [pSpeed], a
+  ld a, 1 ;player Y position in map
+  ld [map_pY], a
+  ld a, 1 ;player X position in map
+  ld [map_pX], a
   ret 
+
+SCROLL_UPDATE:
+  ld a, [pX]
+  sub a, $E
+  ld [rSCX], a
+  ld a, [pY]
+  sub a, $13
+  ld [rSCY], a
+  ret
