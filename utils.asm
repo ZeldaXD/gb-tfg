@@ -13,9 +13,9 @@ OAM_CLEAR:
 VARS_INIT: 
   xor a
   ld [frameCounter], a
-  ld a, $14 ;player Y
+  ld a, 16 ;player Y
   ld [pY], a
-  ld a, $0f ;player X
+  ld a, 16 ;player X
   ld [pX], a
   ld a, 15
   ld [pSpeed], a
@@ -26,10 +26,10 @@ VARS_INIT:
   ret 
 
 SCROLL_UPDATE:
-  ld a, [pX]
-  sub a, $E
-  ld [rSCX], a
-  ld a, [pY]
-  sub a, $13
-  ld [rSCY], a
+  ; ld a, [pX]
+  ; sub a, $19
+  ; ld [rSCX], a
+  ; ld a, [pY]
+  ; sub a, $13
+  ; ld [rSCY], a
   ret

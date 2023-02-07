@@ -63,15 +63,12 @@ INPUT_CHECK:
     ret
 
 .up_buton
-    ; ld a, [pY]
-    ; sub a, 1
-    ; call POS_TO_MAP ;Calculate new Y (minus 10 due to sprite size) pos in map [map_pY] 
-    ; ld a, [map_pX]
-    ; ld e, a
-    ; ld a, b
-    ; ld d, a ;map_pY 
-    ; call CHECK_COLLISION ;Check the collision in next position
-    ; ret nz ;Return if the next tile is not empty
+    ld a, [pX]
+    ld c, a
+    ld a, [pY]
+    dec a
+    call CHECK_COLLISION ;Check the collision in next position
+    ret nz ;Return if the next tile is not empty
 
     ld a, [pY]
     dec a
@@ -79,16 +76,12 @@ INPUT_CHECK:
     ret
 
 .down_button
-    ; ld a, [pY]
-    ; inc a
-    ; inc a
-    ; call POS_TO_MAP ;Calculate new Y (plus 1 due to sprite size) pos in map [map_pY] 
-    ; ld a, [map_pX]
-    ; ld e, a
-    ; ld a, b
-    ; ld d, a ;map_pY 
-    ;call CHECK_COLLISION ;Check the collision in next position
-    ;ret nz ;Return if the next tile is not empty
+    ld a, [pX]
+    ld c, a
+    ld a, [pY]
+    inc a
+    call CHECK_COLLISION ;Check the collision in next position
+    ret nz ;Return if the next tile is not empty
 
     ld a, [pY]
     inc a
@@ -96,15 +89,12 @@ INPUT_CHECK:
     ret
 
 .left_button
-    ; ld a, [pX]
-    ; sub a, 1
-    ; call POS_TO_MAP ;Calculate new X (minus 2 due to sprite size) pos in map [map_pX] 
-    ; ld a, [map_pY]
-    ; ld d, a
-    ; ld a, b
-    ; ld e, a ;map_pX 
-    ; ;call CHECK_COLLISION ;Check the collision in next position
-    ; ;ret nz ;Return if the next tile is not empty
+    ld a, [pX]
+    dec a
+    ld c, a
+    ld a, [pY]
+    call CHECK_COLLISION ;Check the collision in next position
+    ret nz ;Return if the next tile is not empty
 
     ld a, [pX]
     dec a
@@ -112,15 +102,12 @@ INPUT_CHECK:
     ret
 
 .right_button
-    ; ld a, [pX]
-    ; add a, 10
-    ; call POS_TO_MAP ;Calculate new X pos (plus 9 due to sprite size) in map [map_pX] 
-    ; ld a, [map_pY]
-    ; ld d, a
-    ; ld a, b
-    ; ld e, a ;map_pX 
-    ; ;call CHECK_COLLISION ;Check the collision in next position
-    ; ;ret nz ;Return if the next tile is not empty
+    ld a, [pX]
+    inc a
+    ld c, a
+    ld a, [pY]
+    call CHECK_COLLISION ;Check the collision in next position
+    ret nz ;Return if the next tile is not empty
 
     ld a, [pX]
     inc a
