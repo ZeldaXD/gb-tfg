@@ -113,7 +113,7 @@ CHECK_COLLISION:
     and $0F
     cp $0
     ret nz ;If the tile is not empty then we don't need to do the other points
-    ret ;Otherwise, continue with the other points
+    ;Otherwise, continue with the other points
     ld a, c
     inc c
     cp $4 ;Check if we've done all corners
