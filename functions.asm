@@ -78,99 +78,101 @@ MULTIPLY_BY_10:
 ; @param a: Next position Y
 ; @param c: Next position X
 
-;
-;
+; @alters: a, b, c, d, e, hl
 ;****************************************************************************************************************************************************
-
 CHECK_COLLISION:
-    ld d, a
-    ld e, c
+    call HITBOX_MAP
 
-    xor a ;Counter
-    ld [collisionCounter], a
-
-    ld a, c
-    add p_hitbox_X
-    ld c, a
-    ld a, d
-    add p_hitbox_Y
-
+    ld c, 0 ;Counter
 .check_collision_loop:
-    ld b, a
-    ld a, c
-    call POSITION_GET ;Pixel position X to map
-    ld c, a
-    xor a
-    ld [swapTileByte], a
-    bit 0, c
-    jr z, .odd
-    inc a
-    ld [swapTileByte], a
-.odd
-    ld a, b
-    call POSITION_GET ;Pixel position Y to map
+    ld b, 0
+    ld hl, hitbox_locs
+    add hl, bc
+    ld d, [hl]
+    inc hl
+    ld e, [hl]
 
-    ld hl, level1_map
-    ld b, 0
-    srl c
-    add hl, bc
+    ;Add to the address x + (y * 10) to get the tile position in table
+    ld a, d
     call MULTIPLY_BY_10
-    ld c, a
-    ld b, 0
-    add hl, bc
-    ld a, [swapTileByte]
-    ld c, a
+    ld b, e
+    srl e
+    add a, e
+    ld d, 0
+    ld e, a
+    ld hl, level1_map
+    add hl, de 
     ld a, [hl]
-    bit 0, c
-    jr nz, .not_swap_byte
+
+    ;Check if X is even or not to see if we have to swap the nibble
+    ;This is because one byte encodes 2 tiles
+    bit 0, b
+    jr nz, .not_swap_nibble
     swap a
-.not_swap_byte:
+.not_swap_nibble:
     and $0F
     cp $0
-    jr z, .empty ;If the tile is empty then do the next point
-    ret ;Otherwise, return movement is blocked
-.empty:
-    ld a, [collisionCounter]
-    inc a
-    ld [collisionCounter], a
-    cp $1
+    ret nz ;If the tile is not empty then we don't need to do the other points
+    ret ;Otherwise, continue with the other points
+    ld a, c
+    inc c
+    cp $4 ;Check if we've done all corners
+    jr nz, .check_collision_loop
+    ret 
+
+;****************************************************************************************************************************************************
+; Calculate the map positions of all hitbox corners
+
+; @param a: Next position Y
+; @param c: Next position X
+
+; @return a = a + hitbox_y + hitbox_height
+; @return b = 3
+; @return c = c + hitbox_x + hitbox_height
+; @return d = a
+; @return e = c
+; @return hl = hitbox_locs + 8
+;****************************************************************************************************************************************************
+HITBOX_MAP:
+    ld b, 0 ;Counter
+    ld d, a
+    ld e, c
+    ld hl, hitbox_locs
+
+.hitbox_map_loop:
+    add a, p_hitbox_Y
+    call POSITION_GET
+    ld [hl+], a
+
+    ld a, c
+    add a, p_hitbox_X
+    call POSITION_GET
+    ld [hl+], a
+    ld a, b
+    inc b
+    cp $0
     jr z, .top_right
-    cp $2
+    cp $1
     jr z, .bottom_left
-    cp $3
+    cp $2
     jr z, .bottom_right
-    cp $4
     ret
+
 .top_right:
-    ; X = X + WIDTH
-    ; Y = Y
-    ld a, d
-    ld c, e
-    ld a, c
-    add p_hitbox_X + p_hitbox_width
+    ld a, e
+    add a, p_hitbox_width
     ld c, a
     ld a, d
-    add p_hitbox_Y
-    jr .check_collision_loop
+    jr .hitbox_map_loop
 .bottom_left:
-    ; X = X
-    ; Y = Y + HEIGHT
     ld a, d
+    add a, p_hitbox_height
     ld c, e
-    ld a, c
-    add p_hitbox_X
-    ld c, a
-    ld a, d
-    add p_hitbox_Y + p_hitbox_height
-    jr .check_collision_loop
+    jr .hitbox_map_loop
 .bottom_right:
-    ; X = X + WIDTH
-    ; Y = Y + HEIGHT
-    ld a, d
-    ld c, e
-    ld a, c
-    add p_hitbox_X + p_hitbox_width
+    ld a, e
+    add a, p_hitbox_width
     ld c, a
     ld a, d
-    add p_hitbox_Y + p_hitbox_height
-    jr .check_collision_loop
+    add a, p_hitbox_height
+    jr .hitbox_map_loop
