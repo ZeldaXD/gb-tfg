@@ -121,6 +121,12 @@ INPUT_CHECK:
     ret
 
 .a_button
+    ld a, 50
+    ld b, 20
+    call MATH_MINMAX
+    ld a, 20
+    ld b, 50
+    call MATH_MINMAX
     ret
 
 .b_button

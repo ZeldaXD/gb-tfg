@@ -29,22 +29,20 @@ PLAYER_LOAD:
     ret
     
 PLAYER_UPDATE:
+    ld a, [rSCY]
+    ld b, a
     ld a, [pY]
     add a, 16
+    sub a, b
     ld [shadowOAM], a ;Y
     ld [shadowOAM + 4], a ;Y
 
-    ld a, [pY]
-    call POSITION_GET ;Calculate Y pos in map
-    ld [map_pY], a
-
+    ld a, [rSCX]
+    ld b, a
     ld a, [pX]
     add a, 8
+    sub a, b
     ld [shadowOAM + 1], a ;X
     add a, 8
     ld [shadowOAM + 4 + 1], a
-
-    ld a, [pX]
-    call POSITION_GET ;Calculate X pos in map
-    ld [map_pX], a
     ret
