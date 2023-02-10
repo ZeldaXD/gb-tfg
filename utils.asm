@@ -13,23 +13,40 @@ OAM_CLEAR:
 VARS_INIT: 
   xor a
   ld [frameCounter], a
-  ld a, 16 ;player Y
+  ld a, p_spawn_Y ;player Y
   ld [pY], a
-  ld a, 16 ;player X
+  ld a, p_spawn_X ;player X
   ld [pX], a
   ld a, 15
   ld [pSpeed], a
-  ld a, 1 ;player Y position in map
-  ld [map_pY], a
-  ld a, 1 ;player X position in map
-  ld [map_pX], a
   ret 
 
 SCROLL_UPDATE:
-  ; ld a, [pX]
-  ; sub a, $19
-  ; ld [rSCX], a
-  ; ld a, [pY]
-  ; sub a, $13
-  ; ld [rSCY], a
+  ld a, [pY]
+  ld b, a
+  ld a, (SCRN_Y / 2) - SCRN_Y + 8
+  add a, b
+  jr c, .y_underflow
+  xor a
+.y_underflow:
+  ld b, 0
+  call MATH_MINMAX
+  ld b, 15*16 - SCRN_Y
+  call MATH_MINMAX
+  ld a, b
+  ld [rSCY], a
+
+  ld a, [pX]
+  ld b, a
+  ld a, (SCRN_X / 2) - SCRN_X + 8
+  add a, b
+  jr c, .x_underflow
+  xor a
+.x_underflow:
+  ld b, 0
+  call MATH_MINMAX
+  ld b, 15*16 - SCRN_X
+  call MATH_MINMAX
+  ld a, b
+  ld [rSCX], a
   ret

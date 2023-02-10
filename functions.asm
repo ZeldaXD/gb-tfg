@@ -56,20 +56,17 @@ POSITION_GET:
     ret
 
 ;****************************************************************************************************************************************************
-; Multiply a 8 bit number by 7, this is used to convert to map address
+; Multiply a 8 bit number by 8, this is used to convert to map address
 
 ; @param a: Input
 
-; @return a = a * 20
-; @return b = a
+; @return a = a * 8
 ;****************************************************************************************************************************************************
 
-MULTIPLY_BY_10:
-    sla a
-    ld b, a
+MULTIPLY_BY_8:
     sla a
     sla a
-    add a, b
+    sla a
     ret
 
 ;****************************************************************************************************************************************************
@@ -94,7 +91,7 @@ CHECK_COLLISION:
 
     ;Add to the address x + (y * 10) to get the tile position in table
     ld a, d
-    call MULTIPLY_BY_10
+    call MULTIPLY_BY_8
     ld b, e
     srl e
     add a, e
@@ -176,3 +173,24 @@ HITBOX_MAP:
     ld a, d
     add a, p_hitbox_height
     jr .hitbox_map_loop
+
+;****************************************************************************************************************************************************
+; Determine the min and max value between two numbers
+
+; @param a: First 8 bit number
+; @param b: Second 8 bit number
+
+; @return a = max(a,b)
+; @return b = min(a,b)
+; @return c = a
+;****************************************************************************************************************************************************
+
+MATH_MINMAX:
+    cp b
+    ;a-b, if a > b then c=0, a is the maximum and we can return
+    ret nc
+    ;Otherwise, swap a and b
+    ld c, a
+    ld a, b
+    ld b, c
+    ret
