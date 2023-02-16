@@ -19,8 +19,8 @@ level1_tile_map_size EQU $0400
 level1_tile_map_width EQU $20
 level1_tile_map_height EQU $20
 
-level1_tile_data_size EQU $D0
-level1_tile_count EQU $0D
+level1_tile_data_size EQU $D0 + $40
+level1_tile_count EQU $0D + $04
 
 ; ////////////////
 ; //            //
@@ -114,6 +114,10 @@ DB $C1,$FF,$C1,$FF,$21,$FF,$11,$FF,$09,$FF,$05,$FF,$03,$FF,$FF,$FF
 DB $F1,$8F,$E8,$97,$F0,$8F,$EA,$95,$F5,$8A,$FF,$80,$FF,$80,$FF,$FF
 DB $FF,$FF,$00,$FF,$00,$FF,$AA,$55,$55,$AA,$FF,$00,$FF,$00,$FF,$FF
 DB $97,$E9,$0F,$F1,$17,$E9,$AF,$51,$57,$A9,$FF,$01,$FF,$01,$FF,$FF
+DB $00,$00,$2E,$2E,$51,$7F,$27,$3E,$1F,$1D,$06,$06,$09,$08,$0B,$08
+DB $00,$00,$00,$00,$80,$80,$C0,$40,$C0,$C0,$30,$30,$E8,$18,$E8,$18
+DB $17,$10,$17,$10,$17,$10,$0F,$08,$08,$0F,$06,$07,$01,$01,$00,$00
+DB $C4,$3C,$C4,$3C,$84,$7C,$08,$F8,$08,$F8,$30,$F0,$C0,$C0,$00,$00
 
 ; /////////////////
 ; //             //
@@ -137,3 +141,23 @@ DB $10, $00, $00, $00, $00, $00, $00, $11
 DB $10, $10, $10, $10, $10, $10, $10, $11
 DB $10, $00, $00, $00, $00, $00, $00, $11
 DB $11, $11, $11, $11, $11, $11, $11, $11
+
+; 0000 0 empty
+; 0001 1 wall
+; 0010 2 breakable brick
+; 0011 3 hole
+; 0100 4 bomb
+; 0101 5
+; 0110 6
+; 0111 7
+; 1000 8 extra bombs powerup
+; 1001 9 increase explosion range powerup
+; 1010 A speed increase powerup
+; 1011 B ladder powerup
+; 1100 C pushing bombs powerup
+; 1101 D
+; 1110 E
+; 1111 F
+
+TILES_EMPTY_ID EQU $0
+TILES_BOMB_ID EQU $4

@@ -70,73 +70,73 @@ MULTIPLY_BY_8:
     ret
 
 ;****************************************************************************************************************************************************
-; Check if the next move collides with a wall
+; Multiply a 8 bit number by 8, this is used to convert to map address
 
-; @param a: Next position Y
-; @param c: Next position X
+; @param b: Y position in map
+; @param c: X position in map
 
-; @alters: a, b, c, d, e, hl
+; @return a = map[y, x]
+; @return hl = [level_map] + (b * 8) + c
 ;****************************************************************************************************************************************************
-CHECK_COLLISION:
-    call HITBOX_MAP
-
-    ld c, 0 ;Counter
-.check_collision_loop:
+TILE_GET:
+    push bc
+    ld a, b
+    call MULTIPLY_BY_8 ;a = b * 8
+    srl c
+    add a, c ;a = a + c, thus a = (b * 8) + c = (y * 8) + x
+    ld hl, level_map
+    ;Add to the address (y * 8) + x to get the tile position in table
     ld b, 0
-    ld hl, hitbox_locs
+    ld c, a
     add hl, bc
-    ld d, [hl]
-    inc hl
-    ld e, [hl]
-
-    ;Add to the address x + (y * 10) to get the tile position in table
-    ld a, d
-    call MULTIPLY_BY_8
-    ld b, e
-    srl e
-    add a, e
-    ld d, 0
-    ld e, a
-    ld hl, level1_map
-    add hl, de 
     ld a, [hl]
+    pop bc
 
     ;Check if X is even or not to see if we have to swap the nibble
     ;This is because one byte encodes 2 tiles
-    bit 0, b
-    jr nz, .not_swap_nibble
+    bit 0, c
+    ret nz
     swap a
-.not_swap_nibble:
+    ret
+
+;****************************************************************************************************************************************************
+; Check if the next move collides with a wall
+
+; @param b: Next position Y
+; @param c: Next position X
+
+; @return @return a = map[y, x] & $0F
+; @return hl = [level_map] + (b * 8) + c
+; @return z = 1 if map[y, x] == 0
+;****************************************************************************************************************************************************
+CHECK_COLLISION:
+    ;Get the tile in the map from these positions
+    call TILE_GET
+
     and $0F
-    cp $0
-    ret nz ;If the tile is not empty then we don't need to do the other points
-    ;Otherwise, continue with the other points
-    ld a, c
-    inc c
-    cp $4 ;Check if we've done all corners
-    jr nz, .check_collision_loop
-    ret 
+    cp TILES_EMPTY_ID
+    ;If the tile is not empty then it will return nz
+    ret
 
 ;****************************************************************************************************************************************************
 ; Calculate the map positions of all hitbox corners
 
-; @param a: Next position Y
+; @param b: Next position Y
 ; @param c: Next position X
+; @param hl: Hitbox map storage address
 
-; @return a = a + hitbox_y + hitbox_height
-; @return b = 3
-; @return c = c + hitbox_x + hitbox_height
-; @return d = a
-; @return e = c
-; @return hl = hitbox_locs + 8
+; @return a = 3
+; @return b = b + hitbox_height
+; @return d = 3
+; @return hl = hl + 8
 ;****************************************************************************************************************************************************
 HITBOX_MAP:
-    ld b, 0 ;Counter
-    ld d, a
-    ld e, c
-    ld hl, hitbox_locs
+    ld d, 0 ;Counter
+    ;We need to know which corner we're currently checking
 
 .hitbox_map_loop:
+    push bc
+    ld a, b
     add a, p_hitbox_Y
     call POSITION_GET
     ld [hl+], a
@@ -145,34 +145,34 @@ HITBOX_MAP:
     add a, p_hitbox_X
     call POSITION_GET
     ld [hl+], a
-    ld a, b
-    inc b
+    pop bc
+    ld a, d
+    inc d
     cp $0
     jr z, .top_right
     cp $1
-    jr z, .bottom_left
-    cp $2
     jr z, .bottom_right
+    cp $2
+    jr z, .bottom_left
     ret
 
+;Add the width and height of the hitbox depending on the corner we're checking
 .top_right:
-    ld a, e
+    ld a, c
     add a, p_hitbox_width
     ld c, a
-    ld a, d
-    jr .hitbox_map_loop
-.bottom_left:
-    ld a, d
-    add a, p_hitbox_height
-    ld c, e
     jr .hitbox_map_loop
 .bottom_right:
-    ld a, e
-    add a, p_hitbox_width
-    ld c, a
-    ld a, d
+    ld a, b
     add a, p_hitbox_height
+    ld b, a
     jr .hitbox_map_loop
+.bottom_left:
+    ld a, c
+    sub a, p_hitbox_width
+    ld c, a
+    jr .hitbox_map_loop
+
 
 ;****************************************************************************************************************************************************
 ; Determine the min and max value between two numbers
@@ -194,3 +194,60 @@ MATH_MINMAX:
     ld a, b
     ld b, c
     ret
+
+;****************************************************************************************************************************************************
+; Check if we're crossing the boundary between two tiles, and if we are then check the collision
+
+; @param a: First 8 bit number
+; @param b: Second 8 bit number
+
+; @alters: a, b, c, d, e, hl
+; @return z = 1 if map[y, x] == 0 || e == 4
+;****************************************************************************************************************************************************
+CHECK_BOUNDARY:
+    ld hl, hitbox_locs
+    ;Create the hitbox map for the next position
+    call HITBOX_MAP
+
+    ld a, [pX]
+    ld c, a
+    ld a, [pY]
+    ld b, a
+    ld hl, current_hitbox_locs
+    ;Create the hitbox map for the current position
+    call HITBOX_MAP
+
+    ld d, 0
+    ld e, 0 ;Counter
+    ;Load both hitbox maps to compare
+.check_loop:
+    ld hl, hitbox_locs
+    add hl, de
+    ld b, [hl]
+    inc hl
+    ld c, [hl]
+    inc hl
+    
+    ld hl, current_hitbox_locs
+    add hl, de
+    inc e
+    ld a, [hl+]
+    ;Check if current_y[i] = next_y[i]
+    cp b
+    jr nz, .crossed_boundary
+    ld a, [hl+]
+    ;Check if current_x[i] = next_x[i]
+    cp c
+    jr nz, .crossed_boundary
+.return:
+    ld a, e
+    cp $4 ;Total amount of hitbox corners
+    jr nz, .check_loop
+    ret
+.crossed_boundary:
+    push de
+    call CHECK_COLLISION
+    pop de
+    ;If it's not empty then we can stop, otherwise check the other points
+    ret nz
+    jr .return
