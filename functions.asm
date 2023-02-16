@@ -135,7 +135,6 @@ HITBOX_MAP:
     ;We need to know which corner we're currently checking
 
 .hitbox_map_loop:
-    push bc
     ld a, b
     add a, p_hitbox_Y
     call POSITION_GET
@@ -145,7 +144,6 @@ HITBOX_MAP:
     add a, p_hitbox_X
     call POSITION_GET
     ld [hl+], a
-    pop bc
     ld a, d
     inc d
     cp $0
@@ -231,6 +229,7 @@ CHECK_BOUNDARY:
     ld hl, current_hitbox_locs
     add hl, de
     inc e
+    inc e
     ld a, [hl+]
     ;Check if current_y[i] = next_y[i]
     cp b
@@ -241,7 +240,8 @@ CHECK_BOUNDARY:
     jr nz, .crossed_boundary
 .return:
     ld a, e
-    cp $4 ;Total amount of hitbox corners
+    cp 4*2 ;Total amount of memory addresses to check
+    ;4*2, because we have 2 positions (y,x) and 4 corners for hitboxes
     jr nz, .check_loop
     ret
 .crossed_boundary:
