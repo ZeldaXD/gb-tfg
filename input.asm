@@ -72,9 +72,10 @@ INPUT_CHECK:
 .a_button
     ld a, [pX]
     add a, 8
-    ld b, a
+    ld c, a
     ld a, [pY]
     add a, 8
+    ld b, a
     call BOMB_PLACE
     ret
 

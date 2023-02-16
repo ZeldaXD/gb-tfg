@@ -7,10 +7,11 @@ SECTION "Functions", ROM0
 ; @param de: Memory source to copy
 ; @param bc: Size of memory (counter)
 
-; @return a = $00
-; @return bc = $0000
-; @return de = de
 ; @return hl = hl + bc
+; @return de = de
+; @return bc = $0000
+; @return a = $00
+
 ;****************************************************************************************************************************************************
 MEMCPY:
     ld a, [de]
@@ -20,7 +21,48 @@ MEMCPY:
     ld a, b
     or c
     jr nz, MEMCPY
-    ret 
+    ret
+
+;****************************************************************************************************************************************************
+; Copy memory from one source to a destination with a height and width.
+
+; @param hl: Address memory destination
+; @param de: Memory source to copy
+; @param b: Height of tiles to copy (MAX: $FF)
+; @param c: Width of tiles to copy (MAX: $FF)
+
+; @return hl = hl + (b * scrn_vx_b) + c
+; @return de = de + b + c
+; @return bc = $0000
+; @return a = $00
+;****************************************************************************************************************************************************
+TILECPY:
+    push bc
+.tilecpy_loop:
+    ld a, [de]
+    inc de
+    ld [hl+], a
+    dec c
+    ld a, c
+    ;Check if we're done with the width
+    cp $0
+    jr nz, .tilecpy_loop
+    pop bc
+    dec b
+    ld a, b
+    ;Check if we're done with the height
+    cp $0
+    ret z ;If we are, then return
+    ;Otherwise, go to the next line of the screen
+    push bc
+    ld a, SCRN_VX_B
+    sub a, c
+    ld b, 0
+    ld c, a
+    add hl, bc
+    pop bc
+    push bc
+    jr .tilecpy_loop
 
 ;****************************************************************************************************************************************************
 ; Clear the memory (set to 0) of a destination
@@ -43,31 +85,31 @@ MEMCLEAR:
 ;****************************************************************************************************************************************************
 ; Convert the position in the array map to the pixel position
 
-; @param a: Position in the map
+; @param r: Position in the map
 
-; @return a = a // 16
+; @return r = r // 16
 ;****************************************************************************************************************************************************
 
-POSITION_GET:
-    srl a
-    srl a
-    srl a
-    srl a
-    ret
+MACRO POSITION_GET
+    srl \1
+    srl \1
+    srl \1
+    srl \1
+ENDM
 
 ;****************************************************************************************************************************************************
 ; Multiply a 8 bit number by 8, this is used to convert to map address
 
-; @param a: Input
+; @param r: Input
 
-; @return a = a * 8
+; @return r = a * 8
 ;****************************************************************************************************************************************************
 
-MULTIPLY_BY_8:
-    sla a
-    sla a
-    sla a
-    ret
+MACRO MULTIPLY_BY_8
+    sla \1
+    sla \1
+    sla \1
+ENDM
 
 ;****************************************************************************************************************************************************
 ; Multiply a 8 bit number by 8, this is used to convert to map address
@@ -75,13 +117,13 @@ MULTIPLY_BY_8:
 ; @param b: Y position in map
 ; @param c: X position in map
 
-; @return a = map[y, x]
+; @return a = if x % 2 == 0 swap(map[y, x]) else map[y,x]
 ; @return hl = [level_map] + (b * 8) + c
 ;****************************************************************************************************************************************************
 TILE_GET:
     push bc
     ld a, b
-    call MULTIPLY_BY_8 ;a = b * 8
+    MULTIPLY_BY_8 a ;a = b * 8
     srl c
     add a, c ;a = a + c, thus a = (b * 8) + c = (y * 8) + x
     ld hl, level_map
@@ -137,12 +179,12 @@ HITBOX_MAP:
 .hitbox_map_loop:
     ld a, b
     add a, p_hitbox_Y
-    call POSITION_GET
+    POSITION_GET a
     ld [hl+], a
 
     ld a, c
     add a, p_hitbox_X
-    call POSITION_GET
+    POSITION_GET a
     ld [hl+], a
     ld a, d
     inc d

@@ -1,23 +1,17 @@
 SECTION "Bomb", ROM0
 
+;****************************************************************************************************************************************************
+; Place bomb in a position of the map.
 
-;a = y
-;b = x
+; @param b: Y position of the bomb
+; @param c: X position of the bomb
+;****************************************************************************************************************************************************
 BOMB_PLACE:
-    srl a
-    srl a
-    srl a
-    srl a
+    POSITION_GET b
+    POSITION_GET c
 
-    srl b
-    srl b
-    srl b
-    srl b
-    ld c, b
-
-    ld d, a
-    ld e, b
     call TILE_GET
+    and $F0
     or TILES_BOMB_ID
     bit 0, c
     jr nz, .no_swap
@@ -25,37 +19,24 @@ BOMB_PLACE:
 .no_swap:
     ld [hl], a
 
-    ld a, d
-    ld b, c
-
-    sla b
+    sla c
 
     ld d, 0
-    ld e, SCRN_VX_B * 2 ;Screen width bytes
+    ld e, SCRN_VX_B * 2 ;Screen width bytes * 2 because our tiles are 16x16
     ld h, 0
-    ld l, b
+    ld l, c
 
 .sum_loop:
     add hl, de
-    dec a
-    cp a, 0
+    dec b
+    ld a, b
+    cp $0
     jr nz, .sum_loop
-    call BOMB_LOAD
-    ret
-
-;bc = address offset
-BOMB_LOAD:
-    ld bc, $9800
+    
+    ld bc, _SCRN0
     add hl, bc
-
-    ld a, $0D
-    ld [hl+], a
-    ld a, $0E
-    ld [hl+], a
-    ld bc, 16* 2 - 2
-    add hl, bc
-    ld a, $0F
-    ld [hl+], a
-    ld a, $10
-    ld [hl+], a
+    ld de, bomb_map_data
+    ld b, bomb_tile_height
+    ld c, bomb_tile_width
+    call TILECPY
     ret

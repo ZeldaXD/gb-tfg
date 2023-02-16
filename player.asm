@@ -47,30 +47,4 @@ PLAYER_UPDATE:
     ld [shadowOAM + 1], a ;X
     add a, 8
     ld [shadowOAM + 4 + 1], a
-
-    ; ld a, d
-    ; add a, p_hitbox_Y
-    ; ld d, a
-    ; ld a, e
-    ; add a, p_hitbox_X
-    ; ld e, a
-    
-    ; srl d
-    ; srl d
-    ; srl d
-    ; srl d
-
-    ; srl e
-    ; srl e
-    ; srl e
-    ; srl e
-
-    ; call TILE_GET
-    ; and $0F
-    ; cp TILES_BOMB_ID
-    ; ret z
-    ; xor a
-    ; ld hl, last_bomb_locs
-    ; ld [hl+], a
-    ; ld [hl+], a
     ret

@@ -92,7 +92,7 @@ INIT:
     ld de, level1_map_data
     ld bc, level1_tile_map_size
     call MEMCPY
-;
+
     ld hl, _VRAM8000
     ld de, player_tile_data
     ld bc, player_tile_data_size
