@@ -43,6 +43,15 @@ INPUT_CHECK:
     call INPUT_READ
     ld a, [rPAD]
 
+    cp PADF_START
+    jr z, .start_button
+    cp PADF_SELECT
+    jr z, .select_button
+    cp PADF_A
+    jr z, .a_button
+    cp PADF_B
+    jr z, .b_button
+
     cp PADF_UP
     jr z, .up_buton
     cp PADF_DOWN
@@ -52,14 +61,25 @@ INPUT_CHECK:
     cp PADF_RIGHT
     jr z, .right_button
 
-    cp PADF_START
-    jr z, .start_button
-    cp PADF_SELECT
-    jr z, .select_button
-    cp PADF_A
-    jr z, .a_button
-    cp PADF_B
-    jr z, .b_button
+    ret
+
+.start_button
+    ret
+
+.select_button
+    ret
+
+.a_button
+    ld a, [pX]
+    add a, 8
+    ld c, a
+    ld a, [pY]
+    add a, 8
+    ld b, a
+    call BOMB_PLACE
+    ret
+
+.b_button
     ret
 
 .up_buton
@@ -67,7 +87,8 @@ INPUT_CHECK:
     ld c, a
     ld a, [pY]
     dec a
-    call CHECK_COLLISION ;Check the collision in next position
+    ld b, a
+    call CHECK_BOUNDARY ;Check the collision in next position
     ret nz ;Return if the next tile is not empty
 
     ld a, [pY]
@@ -80,7 +101,8 @@ INPUT_CHECK:
     ld c, a
     ld a, [pY]
     inc a
-    call CHECK_COLLISION ;Check the collision in next position
+    ld b, a
+    call CHECK_BOUNDARY ;Check the collision in next position
     ret nz ;Return if the next tile is not empty
 
     ld a, [pY]
@@ -93,7 +115,8 @@ INPUT_CHECK:
     dec a
     ld c, a
     ld a, [pY]
-    call CHECK_COLLISION ;Check the collision in next position
+    ld b, a
+    call CHECK_BOUNDARY ;Check the collision in next position
     ret nz ;Return if the next tile is not empty
 
     ld a, [pX]
@@ -106,28 +129,11 @@ INPUT_CHECK:
     inc a
     ld c, a
     ld a, [pY]
-    call CHECK_COLLISION ;Check the collision in next position
+    ld b, a
+    call CHECK_BOUNDARY ;Check the collision in next position
     ret nz ;Return if the next tile is not empty
 
     ld a, [pX]
     inc a
     ld [pX], a
-    ret
-
-.start_button
-    ret
-
-.select_button
-    ret
-
-.a_button
-    ld a, 50
-    ld b, 20
-    call MATH_MINMAX
-    ld a, 20
-    ld b, 50
-    call MATH_MINMAX
-    ret
-
-.b_button
     ret

@@ -13,12 +13,18 @@ OAM_CLEAR:
 VARS_INIT: 
   xor a
   ld [frameCounter], a
-  ld a, p_spawn_Y ;player Y
+  ld a, p_spawn_Y ;Player Y
   ld [pY], a
-  ld a, p_spawn_X ;player X
+  ld a, p_spawn_X ;Player X
   ld [pX], a
   ld a, 15
   ld [pSpeed], a
+
+  ;Copy the level data from the ROM into the level data in the RAM
+  ld hl, level_map
+  ld de, level1_map
+  ld bc, LEVEL_SIZE
+  call MEMCPY
   ret 
 
 SCROLL_UPDATE:

@@ -32,6 +32,7 @@ PLAYER_UPDATE:
     ld a, [rSCY]
     ld b, a
     ld a, [pY]
+    ld d, a
     add a, 16
     sub a, b
     ld [shadowOAM], a ;Y
@@ -40,6 +41,7 @@ PLAYER_UPDATE:
     ld a, [rSCX]
     ld b, a
     ld a, [pX]
+    ld e, a
     add a, 8
     sub a, b
     ld [shadowOAM + 1], a ;X

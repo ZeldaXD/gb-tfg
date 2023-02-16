@@ -3,7 +3,7 @@
 ;****************************************************************************************************************************************************
 ;* Developed by Miguel Molina
 ;* for the University of Seville end-of-degree project
-;* v0.0.3
+;* v0.0.4
 ;****************************************************************************************************************************************************
 
 ;****************************************************************************************************************************************************
@@ -16,6 +16,7 @@
   ;Tile includes
   INCLUDE "gfx/tiles.inc"
   INCLUDE "gfx/player.inc"
+  ;INCLUDE "gfx/menu.inc"
 
 	;Project includes
   INCLUDE	"utils.asm"
@@ -24,6 +25,7 @@
   INCLUDE	"input.asm"
   INCLUDE	"vars.asm"
   INCLUDE "player.asm"
+  INCLUDE "bomb.asm"
 
 ;****************************************************************************************************************************************************
 ;*	Header
@@ -81,7 +83,7 @@ INIT:
     call MAP_CLEAR
     call OAM_CLEAR
 
-    ld hl, $9000
+    ld hl, _VRAM9000
     ld de, level1_tile_data
     ld bc, level1_tile_data_size
     call MEMCPY
@@ -91,11 +93,20 @@ INIT:
     ld bc, level1_tile_map_size
     call MEMCPY
 
-    ld hl, $8000
+    ld hl, _VRAM8000
     ld de, player_tile_data
     ld bc, player_tile_data_size
     call MEMCPY
 
+    ; ld hl, _VRAM8800
+    ; ld de, Ilustracion_tile_data
+    ; ld bc, Ilustracion_tile_data_size
+    ; call MEMCPY
+
+    ; ld hl, _SCRN0
+    ; ld de, Ilustracion_map_data
+    ; ld bc, Ilustracion_tile_map_size
+    ; call MEMCPY
 
     xor a
     ld [rSCY], a
