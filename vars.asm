@@ -6,8 +6,8 @@ LEVEL_SIZE EQU 8*15
 frameCounter: db
 hitbox_locs: ds 2*4
 current_hitbox_locs: ds 2*4
-PLAYER_ID EQU $00
 
+PLAYER_ID EQU $00
 player_sprites: ds 2*4
 pY: db
 pX: db
@@ -18,3 +18,10 @@ p_hitbox_Y EQU 8
 p_hitbox_X EQU 4
 p_hitbox_width EQU 7
 p_hitbox_height EQU 7
+
+HOLES_NUMBER_LIMIT EQU 4
+HOLES_SPAWN_CHANCE EQU 10 ;10%
+HOLES_DESPAWN EQU 10 ;10%
+;The array contains for each hole [y x]
+holes_array: ds 2*HOLES_NUMBER_LIMIT
+holesCount: db

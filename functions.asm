@@ -293,3 +293,32 @@ CHECK_BOUNDARY:
     ;If it's not empty then we can stop, otherwise check the other points
     ret nz
     jr .return
+
+;****************************************************************************************************************************************************
+; Translate a position in the map to the screen address
+
+; @param b: Y position in map
+; @param c: X position in map
+
+; @return a = 0
+; @return bc = _SCRN0
+; @return de = SCRN_VX_B * 2
+;****************************************************************************************************************************************************
+MAP_TO_ADDRESS:
+    sla c
+
+    ld d, 0
+    ld e, SCRN_VX_B * 2 ;Screen width bytes * 2 because our tiles are 16x16
+    ld h, 0
+    ld l, c
+
+.sum_loop:
+    add hl, de
+    dec b
+    ld a, b
+    cp $0
+    jr nz, .sum_loop
+    
+    ld bc, _SCRN0
+    add hl, bc
+    ret

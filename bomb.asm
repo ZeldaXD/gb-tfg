@@ -19,22 +19,7 @@ BOMB_PLACE:
 .no_swap:
     ld [hl], a
 
-    sla c
-
-    ld d, 0
-    ld e, SCRN_VX_B * 2 ;Screen width bytes * 2 because our tiles are 16x16
-    ld h, 0
-    ld l, c
-
-.sum_loop:
-    add hl, de
-    dec b
-    ld a, b
-    cp $0
-    jr nz, .sum_loop
-    
-    ld bc, _SCRN0
-    add hl, bc
+    call MAP_TO_ADDRESS
     ld de, bomb_map_data
     ld b, bomb_tile_height
     ld c, bomb_tile_width

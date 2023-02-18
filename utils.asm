@@ -25,6 +25,11 @@ VARS_INIT:
   ld de, level1_map
   ld bc, LEVEL_SIZE
   call MEMCPY
+
+  ld bc, $1
+  call srand
+  xor a
+  ld [holesCount], a
   ret 
 
 SCROLL_UPDATE:
