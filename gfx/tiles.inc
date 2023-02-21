@@ -151,6 +151,9 @@ hole_tile_height EQU $02
 hole_map_data:
 DB $11,$12,$13,$14
 
+empty_map_data:
+DB $03,$03,$03,$03
+
 ; /////////////////
 ; //             //
 ; //  Table      //

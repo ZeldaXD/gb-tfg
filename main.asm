@@ -130,23 +130,22 @@ INIT:
 
 MAIN:    
     call WAIT_VBLANK
+    call SCROLL_UPDATE
+    call HOLE_EVENT_CHECK
 
-.main_loop
+.main_loop:
     ld a, [frameCounter]
     inc a
     ld [frameCounter], a
     ld hl, pSpeed
     cp a, [hl]
-    jp nz, MAIN
+    jp nz, .main_loop
 
     ld a, 0
     ld [frameCounter], a
 
     call INPUT_CHECK
-    call HOLE_EVENT_CHECK
     call PLAYER_UPDATE
-    call SCROLL_UPDATE
-
     ld  a, HIGH(shadowOAM)
     call hOAMDMA
     jr MAIN
@@ -155,7 +154,7 @@ WAIT_VBLANK:
     ld a, [rLY]
     cp 144 				;Check if the LCD is past VBlank
     jr c, WAIT_VBLANK	;rLY >= 144?
-    ;call CHECK_TIMERS
+    call CHECK_TIMERS
     ret
 
 CHECK_TIMERS:
@@ -165,11 +164,8 @@ CHECK_TIMERS:
   jr nz, .one_second
   ld a, [timerSeconds]
   inc a
-  cp a, 60
-  jr nz, .one_minute
-  xor a
-.one_minute:
   ld [timerSeconds], a
+  xor a
 .one_second:
   ld [vblankCount], a
   ret 
