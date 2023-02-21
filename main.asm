@@ -123,12 +123,15 @@ INIT:
     ld [rBGP], a
     ld a, %11100100
     ld [rOBP0], a
+    ;ld a, TACF_START | TACF_262KHZ
+    ;ld [rTAC], a
 
     call VARS_INIT
 
 MAIN:    
     call WAIT_VBLANK
 
+.main_loop
     ld a, [frameCounter]
     inc a
     ld [frameCounter], a
@@ -140,7 +143,7 @@ MAIN:
     ld [frameCounter], a
 
     call INPUT_CHECK
-
+    call HOLE_EVENT_CHECK
     call PLAYER_UPDATE
     call SCROLL_UPDATE
 
@@ -152,7 +155,24 @@ WAIT_VBLANK:
     ld a, [rLY]
     cp 144 				;Check if the LCD is past VBlank
     jr c, WAIT_VBLANK	;rLY >= 144?
+    ;call CHECK_TIMERS
     ret
+
+CHECK_TIMERS:
+  ld a, [vblankCount]
+  inc a
+  cp a, 60
+  jr nz, .one_second
+  ld a, [timerSeconds]
+  inc a
+  cp a, 60
+  jr nz, .one_minute
+  xor a
+.one_minute:
+  ld [timerSeconds], a
+.one_second:
+  ld [vblankCount], a
+  ret 
 
 LCDC_OFF:
     xor a

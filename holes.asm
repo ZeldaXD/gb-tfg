@@ -5,6 +5,9 @@ HOLE_EVENT_CHECK:
     ld a, [holesCount]
     cp HOLES_NUMBER_LIMIT
     ret z
+    ld a, [timerSeconds]
+    cp a, 5
+    ret nz
     call HOLE_PLACE
     ret 
 

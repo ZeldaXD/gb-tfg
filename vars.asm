@@ -4,6 +4,8 @@ level_map: ds 8*15
 LEVEL_SIZE EQU 8*15
 
 frameCounter: db
+vblankCount: db
+timerSeconds: db
 hitbox_locs: ds 2*4
 current_hitbox_locs: ds 2*4
 

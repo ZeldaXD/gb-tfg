@@ -12,6 +12,8 @@ OAM_CLEAR:
 
 VARS_INIT: 
   xor a
+  ld [vblankCount], a
+  ld [timerSeconds], a
   ld [frameCounter], a
   ld a, p_spawn_Y ;Player Y
   ld [pY], a
