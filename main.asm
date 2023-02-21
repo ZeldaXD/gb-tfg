@@ -1,9 +1,9 @@
 ;****************************************************************************************************************************************************
-;*	MAIN.ASM - Blast Maidens source code
+;*	MAIN.ASM - Blast Maid source code
 ;****************************************************************************************************************************************************
 ;* Developed by Miguel Molina
 ;* for the University of Seville end-of-degree project
-;* v0.0.4
+;* v0.0.5
 ;****************************************************************************************************************************************************
 
 ;****************************************************************************************************************************************************
@@ -20,12 +20,14 @@
 
 	;Project includes
   INCLUDE	"utils.asm"
-  INCLUDE	"text.asm"
+  ;INCLUDE "text.asm"
   INCLUDE	"functions.asm"
   INCLUDE	"input.asm"
   INCLUDE	"vars.asm"
   INCLUDE "player.asm"
   INCLUDE "bomb.asm"
+  INCLUDE "rand.asm"
+  INCLUDE "holes.asm"
 
 ;****************************************************************************************************************************************************
 ;*	Header
@@ -121,27 +123,29 @@ INIT:
     ld [rBGP], a
     ld a, %11100100
     ld [rOBP0], a
+    ;ld a, TACF_START | TACF_262KHZ
+    ;ld [rTAC], a
 
     call VARS_INIT
 
 MAIN:    
     call WAIT_VBLANK
+    call SCROLL_UPDATE
+    call HOLE_EVENT_CHECK
 
+.main_loop:
     ld a, [frameCounter]
     inc a
     ld [frameCounter], a
     ld hl, pSpeed
     cp a, [hl]
-    jp nz, MAIN
+    jp nz, .main_loop
 
     ld a, 0
     ld [frameCounter], a
 
     call INPUT_CHECK
-
     call PLAYER_UPDATE
-    call SCROLL_UPDATE
-
     ld  a, HIGH(shadowOAM)
     call hOAMDMA
     jr MAIN
@@ -150,7 +154,21 @@ WAIT_VBLANK:
     ld a, [rLY]
     cp 144 				;Check if the LCD is past VBlank
     jr c, WAIT_VBLANK	;rLY >= 144?
+    call CHECK_TIMERS
     ret
+
+CHECK_TIMERS:
+  ld a, [vblankCount]
+  inc a
+  cp a, 60
+  jr nz, .one_second
+  ld a, [timerSeconds]
+  inc a
+  ld [timerSeconds], a
+  xor a
+.one_second:
+  ld [vblankCount], a
+  ret 
 
 LCDC_OFF:
     xor a

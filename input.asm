@@ -80,6 +80,7 @@ INPUT_CHECK:
     ret
 
 .b_button
+    call HOLE_EVENT_CHECK
     ret
 
 .up_buton
