@@ -20,6 +20,7 @@ p_hitbox_Y EQU 8
 p_hitbox_X EQU 4
 p_hitbox_width EQU 7
 p_hitbox_height EQU 7
+p_fire_range EQU 8
 
 HOLES_NUMBER_LIMIT EQU 4
 HOLES_SPAWN_CHANCE EQU 10 ;10%

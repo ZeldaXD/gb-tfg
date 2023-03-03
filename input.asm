@@ -80,7 +80,13 @@ INPUT_CHECK:
     ret
 
 .b_button
-    call HOLE_EVENT_CHECK
+    ld a, [pX]
+    add a, 8
+    ld c, a
+    ld a, [pY]
+    add a, 8
+    ld b, a
+    call CREATE_EXPLOSION
     ret
 
 .up_buton
