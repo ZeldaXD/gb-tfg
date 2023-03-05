@@ -26,53 +26,114 @@ BOMB_PLACE:
     call TILECPY
     ret
 
-;b Y position
-;c X position
-CREATE_EXPLOSION:
+;****************************************************************************************************************************************************
+; Explode a bomb in all directions given its position.
+
+; @param b: Y position of the bomb
+; @param c: X position of the bomb
+; 
+; @return b = b
+; @return c = c - range
+; @return d = 4
+; @return e = range
+; @return h = b
+; @return l = c
+;****************************************************************************************************************************************************
+BOMB_EXPLODE:
     POSITION_GET b
     POSITION_GET c
 
-    ld d, 0 ;Counter
-    ld e, 0 ;Range
-    ld h, b ;Original y
-    ld l, c ;Original x
+    push bc
+    call MAP_TO_ADDRESS
+    ld de, explosion_center_map_data
+    ld b, 2
+    ld c, 2
+    call TILECPY
+    pop bc
+
+    ld h, 0 ;High = Counter, Low = Range
+    ld a, b ;High = Original Y, Low = Original X
+    swap a
+    ld l, c
+    or l
+    ld l, a
 
 .create_explosion_loop:
-    inc e
-    call ADD_OFFSET
+    inc h
+    call DIRECTION_ADD_OFFSET
     ret z ;If the z flag is 1, then all directions have been checked
  
     push hl
     call CHECK_COLLISION
     pop hl
-    jr nz, .next
-    
+    ;If the next tile is empty then we can continue, otherwise go to next direction
+    jr z, .continue
+    dec h
+    jr .next
+.continue:
+    ;Check if it's the last tile of the range
+    ld a, [p_fire_range]
+    sub a, h
+    and $0F
+    cp $0
+    jr z, .next
+
+    ;Copy the explosion tiles to the map in that position
+    push bc
     push hl
     push de
     call MAP_TO_ADDRESS
-    ld de, explosion_map_data
+    pop de
     ld b, 2
     ld c, 2
     call TILECPY
-    pop de
     pop hl
-    
-    ld a, e
-    cp a, p_fire_range
-    jr nz, .create_explosion_loop
+    pop bc
+    jr .create_explosion_loop
+
 .next:
-    inc d
-    ld e, 0
+    call DIRECTION_IS_LAST
+    ld a, h
+    and $F0
+    swap a
+    inc a
+    swap a
+    ld h, a
     jr .create_explosion_loop
 
 
-;
-;
-ADD_OFFSET:
-    ld b, h
-    ld c, l
+;****************************************************************************************************************************************************
+; Add the direction offset to a position.
 
-    ld a, d
+; @param h: Y position of the bomb
+; @param l: X position of the bomb
+; @param d: Direction (0: Up, 1: Down, 2: Right, 3: Left)
+; @param e: Offset (i.e. range)
+; 
+; @return b = h + range if d == 0 or d == 1
+; @return c = l + range if d == 2 or d == 3
+;****************************************************************************************************************************************************
+DIRECTION_ADD_OFFSET:
+    ;Get range
+    ld a, h
+    and $0F
+    ld d, a
+
+    ;Set the original Y
+    ld a, l
+    and $F0
+    swap a
+    ld b, a
+    ;Set the original X
+    ld a, l
+    and $0F
+    ld c, a
+
+    ;Get counter
+    ld a, h
+    and $F0
+    swap a
+    ;Check which direction we're currently doing
     cp $0
     jr z, .up
     cp $1
@@ -82,30 +143,68 @@ ADD_OFFSET:
     cp $3
     jr z, .left
 .return:
-    ld a, d
-    cp $4 ;Check if we're done with all directions
+    ld a, h
+    and $F0
+    swap a
+    cp $3 + $1 ;Check if we're done with all directions
     ret
 
+;Here we add the vertical or horizontal offset (i.e. the range) to the original position
 .up:
     ld a, b
-    sub a, e
+    sub a, d
     ld b, a
+    ld de, explosion_v_middle_map_data
     jr .return
 
 .down:
     ld a, b
-    add a, e
+    add a, d
     ld b, a
+    ld de, explosion_v_middle_map_data
     jr .return
 
 .right:
     ld a, c
-    sub a, e
+    add a, d
     ld c, a
+    ld de, explosion_h_middle_map_data
     jr .return
 
 .left:
     ld a, c
-    add a, e
+    sub a, d
     ld c, a
+    ld de, explosion_h_middle_map_data
     jr .return
+
+
+;
+;
+DIRECTION_IS_LAST:
+    ;Get range
+    ld a, h
+    and $0F
+    cp $0
+    ret z
+
+    call DIRECTION_ADD_OFFSET
+
+    push hl
+    ld de, explosion_end_map_data
+    ld a, h
+    and $F0
+    swap a
+    sla a
+    sla a
+    add a, e
+    ld e, a
+
+    push de
+    call MAP_TO_ADDRESS
+    pop de
+    ld b, 2
+    ld c, 2
+    call TILECPY
+    pop hl
+    ret

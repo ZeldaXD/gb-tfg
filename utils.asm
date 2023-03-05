@@ -21,6 +21,8 @@ VARS_INIT:
   ld [pX], a
   ld a, 15
   ld [pSpeed], a
+  ld a, 2
+  ld [p_fire_range], a
 
   ;Copy the level data from the ROM into the level data in the RAM
   ld hl, level_map

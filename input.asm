@@ -86,7 +86,7 @@ INPUT_CHECK:
     ld a, [pY]
     add a, 8
     ld b, a
-    call CREATE_EXPLOSION
+    call BOMB_EXPLODE
     ret
 
 .up_buton
