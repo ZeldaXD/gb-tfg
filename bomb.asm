@@ -51,33 +51,58 @@ BOMB_EXPLODE:
     call TILECPY
     pop bc
 
+    
     ld h, 0 ;High = Counter, Low = Range
     ld a, b ;High = Original Y, Low = Original X
     swap a
     ld l, c
     or l
     ld l, a
-
-.create_explosion_loop:
-    inc h
-    call DIRECTION_ADD_OFFSET
-    ret z ;If the z flag is 1, then all directions have been checked
- 
-    push hl
-    call CHECK_COLLISION
-    pop hl
-    ;If the next tile is empty then we can continue, otherwise go to next direction
-    jr z, .continue
-    dec h
-    jr .next
-.continue:
-    ;Check if it's the last tile of the range
+.loop:
+    ;Check if we've reached the range limit
     ld a, [p_fire_range]
     sub a, h
     and $0F
     cp $0
+    jr z, .exit_loop
+
+    inc h
+    call DIRECTION_ADD_OFFSET
+    ret z ;If the z flag is 1, then all directions have been checked
+
+    push hl
+    call CHECK_COLLISION
+    pop hl
+    ;If the next tile is empty then we can continue, otherwise go to next direction
+    jr z, .loop
+    dec h
+.exit_loop:
+    ;If there is no range (range = 0), then go to next direction
+    ld a, h
+    and $0F
+    cp $0
+    jr z, .next_zero_range
+    
+    ;Set the original Y
+    ld a, l
+    and $F0
+    swap a
+    ld b, a
+    ;Set the original X
+    ld a, l
+    and $0F
+    ld c, a
+
+.create_explosion_loop:
+    dec h
+    ld a, h
+    and $0F
+    cp $0
     jr z, .next
 
+    call DIRECTION_ADD_OFFSET
+    ret z ;If the z flag is 1, then all directions have been checked
+   
     ;Copy the explosion tiles to the map in that position
     push bc
     push hl
@@ -89,17 +114,27 @@ BOMB_EXPLODE:
     call TILECPY
     pop hl
     pop bc
-    jr .create_explosion_loop
-
+    jr .create_explosion_loop 
 .next:
     call DIRECTION_IS_LAST
+.next_zero_range:
     ld a, h
     and $F0
     swap a
     inc a
     swap a
     ld h, a
-    jr .create_explosion_loop
+
+    ;Set the original Y
+    ld a, l
+    and $F0
+    swap a
+    ld b, a
+    ;Set the original X
+    ld a, l
+    and $0F
+    ld c, a
+    jr .loop
 
 
 ;****************************************************************************************************************************************************
@@ -114,21 +149,6 @@ BOMB_EXPLODE:
 ; @return c = l + range if d == 2 or d == 3
 ;****************************************************************************************************************************************************
 DIRECTION_ADD_OFFSET:
-    ;Get range
-    ld a, h
-    and $0F
-    ld d, a
-
-    ;Set the original Y
-    ld a, l
-    and $F0
-    swap a
-    ld b, a
-    ;Set the original X
-    ld a, l
-    and $0F
-    ld c, a
-
     ;Get counter
     ld a, h
     and $F0
@@ -146,35 +166,27 @@ DIRECTION_ADD_OFFSET:
     ld a, h
     and $F0
     swap a
-    cp $3 + $1 ;Check if we're done with all directions
+    cp $4 ;Check if we're done with all directions
     ret
 
 ;Here we add the vertical or horizontal offset (i.e. the range) to the original position
 .up:
-    ld a, b
-    sub a, d
-    ld b, a
+    dec b
     ld de, explosion_v_middle_map_data
     jr .return
 
 .down:
-    ld a, b
-    add a, d
-    ld b, a
+    inc b
     ld de, explosion_v_middle_map_data
     jr .return
 
 .right:
-    ld a, c
-    add a, d
-    ld c, a
+    inc c
     ld de, explosion_h_middle_map_data
     jr .return
 
 .left:
-    ld a, c
-    sub a, d
-    ld c, a
+    dec c
     ld de, explosion_h_middle_map_data
     jr .return
 
@@ -182,14 +194,7 @@ DIRECTION_ADD_OFFSET:
 ;
 ;
 DIRECTION_IS_LAST:
-    ;Get range
-    ld a, h
-    and $0F
-    cp $0
-    ret z
-
     call DIRECTION_ADD_OFFSET
-
     push hl
     ld de, explosion_end_map_data
     ld a, h
