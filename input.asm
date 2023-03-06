@@ -86,6 +86,8 @@ INPUT_CHECK:
     ld a, [pY]
     add a, 8
     ld b, a
+    POSITION_GET b
+    POSITION_GET c
     call BOMB_EXPLODE
     ret
 

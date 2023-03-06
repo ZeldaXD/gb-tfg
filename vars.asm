@@ -3,6 +3,8 @@ SECTION "Variables", WRAM0
 level_map: ds 8*15
 LEVEL_SIZE EQU 8*15
 
+explosionRanges: ds 4
+
 frameCounter: db
 vblankCount: db
 timerSeconds: db
